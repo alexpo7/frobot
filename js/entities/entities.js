@@ -28,8 +28,15 @@ game.PlayerEntity = me.Entity.extend({
         this.renderable.addAnimation("jump",  [13]);
         // set the standing animation as default
         this.renderable.setCurrentAnimation("stand");
-        var health = new me.Renderable();
-        this.health = 100;        
+        this.health = 100;
+        this.lastHitTime = 0; 
+        if(this.health == 100) {
+            console.log(this.health);
+            this.health == 100;
+        }
+        if(this.lastHitTime == 0) {
+            this.lastHitTime = me.timer.getTime();
+        }
     },
 
     /**
@@ -149,14 +156,24 @@ game.PlayerEntity = me.Entity.extend({
                     this.body.jumping = true;
                     // play some audio
                     me.audio.play("stomp");
-                    this.health -= 10;
-                    if(this.health <= 0) {
-                        this.gameOver();
-                    }
                 }
                 else {
                     // let's flicker in case we touched an enemy
-                    this.renderable.flicker(750);
+                    this.renderable.flicker(1000);
+                    
+                }
+                // update health
+                if(me.timer.getTime() - this.lastHitTime > 1000) {
+                    this.lastHitTime = me.timer.getTime();
+                    if(this.health > 0){
+                        console.log(this.health);
+                        this.health -= 10;
+                        this.renderable.flicker(1000);
+                    } 
+                    else {
+                        this.alive = false;
+                        me.state.change(me.state.MENU);
+                    }
                 }
                 return false;
                 break;
